@@ -50,6 +50,12 @@
               >
                 Editar
               </NuxtLink>
+              <button
+                @click="deletePost(post)"
+                class="text-sm text-red-500 hover:underline"
+              >
+                Deletar
+              </button>
             </td>
           </tr>
         </tbody>
@@ -68,6 +74,13 @@ const { data: posts, pending, refresh } = await useFetch('/api/admin/posts')
 function formatDate(dateString: string | null): string {
   if (!dateString) return '—'
   return new Date(dateString).toLocaleDateString('pt-BR')
+}
+
+async function deletePost(post: { id: string; title: string }) {
+  if (!confirm(`Deletar "${post.title}"? Essa ação não pode ser desfeita.`)) return
+
+  await $fetch(`/api/admin/posts/${post.id}`, { method: 'DELETE' })
+  await refresh()
 }
 
 async function toggleStatus(post: { id: string; status: string }) {
