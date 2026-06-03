@@ -28,8 +28,7 @@ export default defineEventHandler(async (event) => {
   const slug = slugify(title) + '-' + Date.now().toString(36)
   const client = await useServerSupabase(event)
 
-  const { data, error } = await client
-    .from('posts' as any)
+  const { data, error } = await (client.from('posts' as any) as any)
     .insert({
       title: title.trim(),
       slug,
