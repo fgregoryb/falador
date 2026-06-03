@@ -1,11 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex flex-col">
+  <div style="min-height:100vh;background:var(--bg);display:flex;flex-direction:column;">
     <AppHeader />
-
-    <main class="flex-1 max-w-3xl mx-auto w-full px-4 py-10">
+    <main style="flex:1;">
       <slot />
     </main>
-
     <AppFooter />
   </div>
 </template>

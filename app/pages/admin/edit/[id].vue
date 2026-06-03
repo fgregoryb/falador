@@ -1,20 +1,14 @@
 <template>
-  <div>
-    <h1 class="text-2xl font-bold text-gray-900 mb-8">Editar post</h1>
-
-    <div v-if="pending" class="text-gray-400">Carregando post...</div>
-
-    <PostForm
-      v-else-if="post"
-      :initial-data="post"
-      submit-label="Salvar alterações"
-      :loading="loading"
-      :error-msg="errorMsg"
-      @submit="updatePost"
-    />
-
-    <p v-else class="text-gray-400">Post não encontrado.</p>
+  <div v-if="pending" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-3);font-family:var(--font-mono);font-size:13px;">
+    Carregando post…
   </div>
+  <PostForm
+    v-else-if="post"
+    :initial-data="{ title: post.title, excerpt: post.excerpt ?? '', content: post.content }"
+    submit-label="Salvar alterações"
+    :loading="loading"
+    @submit="updatePost"
+  />
 </template>
 
 <script setup lang="ts">
@@ -23,27 +17,18 @@ definePageMeta({ layout: 'admin', middleware: 'auth' })
 const route = useRoute()
 const router = useRouter()
 const id = route.params.id as string
+const loading = ref(false)
 
 const { data: post, pending } = await useFetch(`/api/admin/posts/${id}`)
 
-const loading = ref(false)
-const errorMsg = ref('')
-
-async function updatePost(data: { title: string; excerpt: string; content: string }) {
+async function updatePost(data: { title: string; excerpt: string; content: string; publish?: boolean }) {
   loading.value = true
-  errorMsg.value = ''
 
-  const { error } = await useFetch(`/api/admin/posts/${id}`, {
-    method: 'PUT',
-    body: data,
-  })
+  const body: Record<string, unknown> = { title: data.title, excerpt: data.excerpt, content: data.content }
+  if (data.publish !== undefined) body.status = data.publish ? 'published' : 'draft'
 
-  if (error.value) {
-    errorMsg.value = error.value.data?.message ?? 'Erro ao salvar.'
-    loading.value = false
-    return
-  }
-
-  await router.push('/admin')
+  const { error } = await useFetch(`/api/admin/posts/${id}`, { method: 'PUT', body })
+  loading.value = false
+  if (!error.value) await router.push('/admin')
 }
 </script>

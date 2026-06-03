@@ -1,49 +1,78 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex">
-    <aside class="w-56 bg-white border-r border-gray-200 flex flex-col">
-      <div class="px-6 py-5 border-b border-gray-200">
-        <NuxtLink to="/" class="text-sm font-bold text-indigo-600">← Ver blog</NuxtLink>
+  <div style="height:100vh;display:flex;background:var(--bg-tint);">
+    <!-- Sidebar -->
+    <aside style="width:244px;flex:none;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 16px;">
+      <div style="padding:6px 8px 20px;">
+        <FWordmark :size="18" />
       </div>
 
-      <nav class="flex-1 px-4 py-4 space-y-1">
-        <NuxtLink
-          to="/admin"
-          class="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-          active-class="bg-indigo-50 text-indigo-700 font-medium"
-        >
-          Posts
-        </NuxtLink>
-        <NuxtLink
-          to="/admin/new"
-          class="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-          active-class="bg-indigo-50 text-indigo-700 font-medium"
-        >
-          Novo post
-        </NuxtLink>
+      <nav style="display:flex;flex-direction:column;gap:3px;">
+        <button v-for="item in navItems" :key="item.route"
+          @click="navigateTo(item.path)"
+          :style="{
+            display:'flex', alignItems:'center', gap:'11px', padding:'9px 11px',
+            borderRadius:'9px', border:'none', textAlign:'left', fontFamily:'var(--font-ui)',
+            fontSize:'14px', fontWeight: isNavActive(item.route) ? '600' : '500',
+            background: isNavActive(item.route) ? 'var(--accent-weak)' : 'transparent',
+            color: isNavActive(item.route) ? 'var(--accent)' : 'var(--text-2)',
+            transition:'all .14s var(--ease)',
+          }"
+          @mouseenter="(e: MouseEvent) => { if(!isNavActive(item.route)) { (e.currentTarget as HTMLElement).style.background='var(--surface-2)'; (e.currentTarget as HTMLElement).style.color='var(--text)'; } }"
+          @mouseleave="(e: MouseEvent) => { if(!isNavActive(item.route)) { (e.currentTarget as HTMLElement).style.background='transparent'; (e.currentTarget as HTMLElement).style.color='var(--text-2)'; } }">
+          <FIcon :name="item.icon" :size="17" />
+          {{ item.label }}
+          <span v-if="item.route === 'new'" style="margin-left:auto;">
+            <FIcon name="plus" :size="14" />
+          </span>
+        </button>
       </nav>
 
-      <div class="px-4 py-4 border-t border-gray-200">
-        <button
-          @click="logout"
-          class="w-full text-left px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 transition-colors"
-        >
-          Sair
+      <div style="margin-top:auto;">
+        <button @click="navigateTo('/')"
+          style="width:100%;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:none;border:none;color:var(--text-2);font-size:13.5px;font-family:var(--font-ui);margin-bottom:8px;"
+          @mouseenter="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.color='var(--accent)'"
+          @mouseleave="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.color='var(--text-2)'">
+          <FIcon name="arrowUpRight" :size="16" /> Ver site público
         </button>
+        <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;align-items:center;gap:11px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--accent-weak);display:grid;place-items:center;color:var(--accent);font-family:var(--font-display);font-weight:600;font-size:15px;flex:none;">G</div>
+          <div style="min-width:0;flex:1;">
+            <div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Gregory Rodrigues</div>
+            <div style="font-size:11.5px;color:var(--text-3);font-family:var(--font-mono);">fgregoryb@gmail.com</div>
+          </div>
+          <button class="icon-btn" @click="logout" title="Sair">
+            <FIcon name="logout" :size="16" />
+          </button>
+        </div>
       </div>
     </aside>
 
-    <main class="flex-1 px-8 py-8 max-w-4xl">
+    <!-- Main -->
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
       <slot />
-    </main>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+const route = useRoute()
 const supabase = useSupabaseClient()
-const router = useRouter()
+const { theme, toggleTheme } = useTheme()
+
+const navItems = [
+  { route: 'admin', path: '/admin', icon: 'file', label: 'Painel' },
+  { route: 'new', path: '/admin/new', icon: 'pencil', label: 'Novo post' },
+  { route: 'settings', path: '/admin', icon: 'settings', label: 'Configurações' },
+]
+
+function isNavActive(r: string) {
+  if (r === 'admin') return route.path === '/admin'
+  if (r === 'new') return route.path.startsWith('/admin/new') || route.path.startsWith('/admin/edit')
+  return false
+}
 
 async function logout() {
   await supabase.auth.signOut()
-  await router.push('/admin/login')
+  await navigateTo('/admin/login')
 }
 </script>
