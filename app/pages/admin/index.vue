@@ -36,10 +36,17 @@
               </span>
             </td>
             <td class="px-4 py-3 text-gray-500">{{ formatDate(post.created_at) }}</td>
-            <td class="px-4 py-3 text-right">
+            <td class="px-4 py-3 text-right space-x-3">
+              <button
+                @click="toggleStatus(post)"
+                class="text-sm hover:underline"
+                :class="post.status === 'published' ? 'text-orange-500' : 'text-green-600'"
+              >
+                {{ post.status === 'published' ? 'Despublicar' : 'Publicar' }}
+              </button>
               <NuxtLink
                 :to="`/admin/edit/${post.id}`"
-                class="text-indigo-600 hover:underline"
+                class="text-indigo-600 hover:underline text-sm"
               >
                 Editar
               </NuxtLink>
@@ -56,10 +63,21 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'admin', middleware: 'auth' })
 
-const { data: posts, pending } = await useFetch('/api/admin/posts')
+const { data: posts, pending, refresh } = await useFetch('/api/admin/posts')
 
 function formatDate(dateString: string | null): string {
   if (!dateString) return '—'
   return new Date(dateString).toLocaleDateString('pt-BR')
+}
+
+async function toggleStatus(post: { id: string; status: string }) {
+  const newStatus = post.status === 'published' ? 'draft' : 'published'
+
+  await $fetch(`/api/admin/posts/${post.id}`, {
+    method: 'PUT',
+    body: { status: newStatus },
+  })
+
+  await refresh()
 }
 </script>
