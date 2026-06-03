@@ -16,12 +16,14 @@ async function createPost(data: { title: string; excerpt: string; content: strin
   if (!data.title.trim()) return
   loading.value = true
 
-  const { error } = await useFetch('/api/admin/posts', {
-    method: 'POST',
-    body: { title: data.title, excerpt: data.excerpt, content: data.content },
-  })
-
-  loading.value = false
-  if (!error.value) await router.push('/admin')
+  try {
+    await $fetch('/api/admin/posts', {
+      method: 'POST',
+      body: { title: data.title, excerpt: data.excerpt, content: data.content },
+    })
+    await router.push('/admin')
+  } catch {
+    loading.value = false
+  }
 }
 </script>

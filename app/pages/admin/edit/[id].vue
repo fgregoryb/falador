@@ -27,8 +27,11 @@ async function updatePost(data: { title: string; excerpt: string; content: strin
   const body: Record<string, unknown> = { title: data.title, excerpt: data.excerpt, content: data.content }
   if (data.publish !== undefined) body.status = data.publish ? 'published' : 'draft'
 
-  const { error } = await useFetch(`/api/admin/posts/${id}`, { method: 'PUT', body })
-  loading.value = false
-  if (!error.value) await router.push('/admin')
+  try {
+    await $fetch(`/api/admin/posts/${id}`, { method: 'PUT', body })
+    await router.push('/admin')
+  } catch {
+    loading.value = false
+  }
 }
 </script>
