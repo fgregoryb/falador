@@ -1,5 +1,16 @@
 import { serverSupabaseUser } from '#supabase/server'
 
+function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
+
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
 
@@ -14,11 +25,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Título é obrigatório' })
   }
 
-  const slug = generateSlug(title)
+  const slug = slugify(title) + '-' + Date.now().toString(36)
   const client = await useServerSupabase(event)
 
-  const { data, error } = await (client as any)
-    .from('posts')
+  const { data, error } = await client
+    .from('posts' as any)
     .insert({
       title: title.trim(),
       slug,
@@ -31,7 +42,7 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (error) {
-    throw createError({ statusCode: 500, message: error.message })
+    throw createError({ statusCode: 500, message: `Supabase: ${error.message}` })
   }
 
   return data
