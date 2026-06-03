@@ -25,6 +25,11 @@ const route = useRoute()
 
 const { data: post, pending } = await useFetch(`/api/posts/slug/${route.params.slug}`)
 
+useSeoMeta({
+  title: () => post.value?.title ?? 'Post',
+  description: () => post.value?.excerpt ?? '',
+})
+
 function formatDate(dateString: string | null): string {
   if (!dateString) return ''
   return new Date(dateString).toLocaleDateString('pt-BR', {

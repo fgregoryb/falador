@@ -26,6 +26,11 @@
 </template>
 
 <script setup lang="ts">
+useSeoMeta({
+  title: 'Blog',
+  description: 'Pensamentos, tutoriais e anotações sobre desenvolvimento web.',
+})
+
 const { data: posts, pending } = await useFetch('/api/posts')
 
 function formatDate(dateString: string | null): string {

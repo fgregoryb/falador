@@ -34,4 +34,9 @@
 
 <script setup lang="ts">
 const { data: profile, pending } = await useFetch('/api/profile')
+
+useSeoMeta({
+  title: () => profile.value ? `Sobre — ${profile.value.name}` : 'Sobre',
+  description: () => profile.value?.bio ?? '',
+})
 </script>
