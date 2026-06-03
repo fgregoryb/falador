@@ -1,5 +1,5 @@
 import { serverSupabaseUser } from '#supabase/server'
-import { generateSlug } from '~/server/utils/slug'
+import { generateSlug } from '../../utils/slug'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
