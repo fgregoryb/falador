@@ -7,4 +7,13 @@ export default defineNuxtConfig({
     redirect: false,
   },
   css: ['~/assets/css/main.css'],
+  app: {
+    head: {
+      titleTemplate: '%s · Meu Blog',
+      meta: [
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { charset: 'utf-8' },
+      ],
+    },
+  },
 })
