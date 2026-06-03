@@ -1,4 +1,5 @@
 import { serverSupabaseUser } from '#supabase/server'
+import { generateSlug } from '~/server/utils/slug'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
   const slug = generateSlug(title)
   const client = await useServerSupabase(event)
 
-  const { data, error } = await client
+  const { data, error } = await (client as any)
     .from('posts')
     .insert({
       title: title.trim(),
