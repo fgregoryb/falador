@@ -16,14 +16,17 @@
       />
     </article>
 
-    <p v-else class="text-gray-400">Post não encontrado.</p>
   </div>
 </template>
 
 <script setup lang="ts">
 const route = useRoute()
 
-const { data: post, pending } = await useFetch(`/api/posts/slug/${route.params.slug}`)
+const { data: post, pending, error } = await useFetch(`/api/posts/slug/${route.params.slug}`)
+
+if (error.value) {
+  throw createError({ statusCode: 404, message: 'Post não encontrado', fatal: true })
+}
 
 useSeoMeta({
   title: () => post.value?.title ?? 'Post',
