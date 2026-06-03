@@ -1,4 +1,4 @@
-import { serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Título é obrigatório' })
   }
 
-  const client = await useServerSupabase(event)
+  const client = serverSupabaseServiceRole(event)
 
   const updates: Record<string, unknown> = {}
   if (title !== undefined) updates.title = title.trim()

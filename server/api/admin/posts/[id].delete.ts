@@ -1,4 +1,4 @@
-import { serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const id = getRouterParam(event, 'id')
-  const client = await useServerSupabase(event)
+  const client = serverSupabaseServiceRole(event)
 
   const { error } = await client
     .from('posts')

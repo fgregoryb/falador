@@ -1,4 +1,4 @@
-import { serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 function slugify(title: string): string {
   return title
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const slug = slugify(title) + '-' + Date.now().toString(36)
-  const client = await useServerSupabase(event)
+  const client = serverSupabaseServiceRole(event)
 
   const { data, error } = await (client.from('posts' as any) as any)
     .insert({
