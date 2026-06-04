@@ -96,12 +96,16 @@
         </div>
 
         <div v-for="(post, i) in filtered" :key="post.id"
-          style="display:grid;grid-template-columns:1fr 140px 120px 110px;gap:16px;padding:15px 22px;align-items:center;transition:background .14s;"
-          :style="{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none' }"
+          :style="{
+            display:'grid', gridTemplateColumns:'1fr 140px 120px 110px', gap:'16px',
+            padding:'15px 22px', alignItems:'center', transition:'background .14s',
+            borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none'
+          }"
           @mouseenter="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.background='var(--surface-2)'"
           @mouseleave="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.background='transparent'">
           <div style="display:flex;align-items:center;gap:13px;min-width:0;">
-            <span class="ph-img" style="width:42px;height:42px;border-radius:8px;flex:none;" />
+            <img :src="coverImage(post.slug, 84, 84)" :alt="post.title"
+              style="width:42px;height:42px;border-radius:8px;flex:none;object-fit:cover;display:block;" loading="lazy" />
             <div style="min-width:0;">
               <div style="font-size:14.5px;font-weight:600;font-family:var(--font-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ post.title }}</div>
               <div style="font-size:11px;color:var(--text-3);margin-top:3px;font-family:var(--font-mono);">{{ post.slug }}</div>

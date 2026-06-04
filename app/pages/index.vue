@@ -49,9 +49,8 @@
               <span>{{ fmtDate(posts[0].published_at) }}</span>
             </div>
           </div>
-          <div class="ph-img" style="min-height:320px;border-radius:0;border-top:none;border-right:none;border-bottom:none;">
-            <span>capa do artigo</span>
-          </div>
+          <img :src="coverImage(posts[0].slug, 700, 400)" :alt="posts[0].title"
+            style="min-height:320px;width:100%;object-fit:cover;border-radius:0;display:block;" loading="lazy" />
         </NuxtLink>
       </section>
 
