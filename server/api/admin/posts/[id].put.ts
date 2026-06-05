@@ -1,4 +1,4 @@
-import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Título é obrigatório' })
   }
 
-  const client = serverSupabaseServiceRole(event)
+  const client = useServerAdmin(event)
 
   const updates: Record<string, unknown> = {}
   if (title !== undefined) updates.title = title.trim()
@@ -30,7 +30,6 @@ export default defineEventHandler(async (event) => {
     .from('posts')
     .update(updates)
     .eq('id', id)
-    .eq('author_id', user.id)
 
   if (error) {
     throw createError({ statusCode: 500, message: error.message })

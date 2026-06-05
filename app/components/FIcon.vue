@@ -8,7 +8,7 @@ import {
   Eye, EyeOff, File, Github, Heading2, Linkedin, List, LogOut, Mail,
   Maximize2, Minimize2, Moon, Pencil, Plus, Quote, Save, Search,
   Settings, Share2, Sun, Trash2, TrendingUp, Twitter, Bold, Italic,
-  Link, Code, Code2, X, AlignLeft, Bell,
+  Link, Code, Code2, X, AlignLeft, Bell, Calendar, AlertCircle,
 } from 'lucide-vue-next'
 
 const icons: Record<string, any> = {
@@ -50,6 +50,8 @@ const icons: Record<string, any> = {
   x: X,
   wordcount: AlignLeft,
   bell: Bell,
+  calendar: Calendar,
+  alertCircle: AlertCircle,
 }
 
 const props = withDefaults(defineProps<{

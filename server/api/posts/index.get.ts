@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const client = await useServerSupabase(event)
+  const client = useServerAdmin(event)
 
   const { data, error } = await client
     .from('posts')

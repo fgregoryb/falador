@@ -12,6 +12,13 @@
     </header>
 
     <div style="flex:1;overflow-y:auto;padding:26px;max-width:1180px;width:100%;margin:0 auto;">
+
+      <!-- Erro de carregamento -->
+      <div v-if="fetchError" style="margin-bottom:20px;padding:14px 18px;border-radius:var(--radius-sm);background:color-mix(in srgb,#e5484d 10%,transparent);border:1px solid color-mix(in srgb,#e5484d 30%,transparent);color:#e5484d;font-size:13.5px;display:flex;align-items:center;gap:10px;">
+        <FIcon name="alertCircle" :size="16" style="flex:none;" />
+        Erro ao carregar posts: {{ fetchError.message }}
+      </div>
+
       <!-- Stats -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">
         <div class="card" style="padding:20px 22px;">
@@ -19,7 +26,6 @@
             <span style="width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--accent-weak);color:var(--accent);">
               <FIcon name="file" :size="19" />
             </span>
-            <span style="font-size:12px;font-weight:600;color:#2a9d5c;font-family:var(--font-mono);">+2 mês</span>
           </div>
           <div class="serif" style="font-size:32px;font-weight:500;letter-spacing:-0.02em;line-height:1;">{{ publishedCount }}</div>
           <div style="font-size:13px;color:var(--text-2);margin-top:6px;">Posts publicados</div>
@@ -36,22 +42,20 @@
         <div class="card" style="padding:20px 22px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
             <span style="width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2);color:var(--text-2);">
-              <FIcon name="trending" :size="19" />
+              <FIcon name="list" :size="19" />
             </span>
-            <span style="font-size:12px;font-weight:600;color:#2a9d5c;font-family:var(--font-mono);">+12%</span>
           </div>
-          <div class="serif" style="font-size:32px;font-weight:500;letter-spacing:-0.02em;line-height:1;">28,9k</div>
-          <div style="font-size:13px;color:var(--text-2);margin-top:6px;">Visitas totais</div>
+          <div class="serif" style="font-size:32px;font-weight:500;letter-spacing:-0.02em;line-height:1;">{{ totalCount }}</div>
+          <div style="font-size:13px;color:var(--text-2);margin-top:6px;">Total de posts</div>
         </div>
         <div class="card" style="padding:20px 22px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
             <span style="width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2);color:var(--text-2);">
-              <FIcon name="bell" :size="19" />
+              <FIcon name="calendar" :size="19" />
             </span>
-            <span style="font-size:12px;font-weight:600;color:#2a9d5c;font-family:var(--font-mono);">+34</span>
           </div>
-          <div class="serif" style="font-size:32px;font-weight:500;letter-spacing:-0.02em;line-height:1;">612</div>
-          <div style="font-size:13px;color:var(--text-2);margin-top:6px;">Assinantes</div>
+          <div class="serif" style="font-size:32px;font-weight:500;letter-spacing:-0.02em;line-height:1;">{{ lastPostDate }}</div>
+          <div style="font-size:13px;color:var(--text-2);margin-top:6px;">Último post</div>
         </div>
       </div>
 
@@ -156,10 +160,20 @@ const filterKey = ref('todos')
 const delPost = ref<{ id: string; title: string } | null>(null)
 const filters = [['todos', 'Todos'], ['published', 'Publicados'], ['draft', 'Rascunhos']] as const
 
-const { data: posts, pending, refresh } = await useFetch('/api/admin/posts')
+const { data: posts, pending, error: fetchError, refresh } = await useFetch('/api/admin/posts')
 
 const publishedCount = computed(() => posts.value?.filter(p => p.status === 'published').length ?? 0)
-const draftCount = computed(() => posts.value?.filter(p => p.status === 'draft').length ?? 0)
+const draftCount     = computed(() => posts.value?.filter(p => p.status === 'draft').length ?? 0)
+const totalCount     = computed(() => posts.value?.length ?? 0)
+const lastPostDate   = computed(() => {
+  const published = posts.value?.filter(p => p.published_at).sort(
+    (a, b) => new Date(b.published_at!).getTime() - new Date(a.published_at!).getTime()
+  )
+  if (!published?.length) return '—'
+  const d = new Date(published[0].published_at!)
+  const months = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']
+  return `${d.getDate()} ${months[d.getMonth()]}`
+})
 
 const filtered = computed(() => {
   if (!posts.value) return []

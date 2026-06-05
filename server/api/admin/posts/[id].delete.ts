@@ -1,4 +1,4 @@
-import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -8,13 +8,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const id = getRouterParam(event, 'id')
-  const client = serverSupabaseServiceRole(event)
+  const client = useServerAdmin(event)
 
   const { error } = await client
     .from('posts')
     .delete()
     .eq('id', id)
-    .eq('author_id', user.id)
 
   if (error) {
     throw createError({ statusCode: 500, message: error.message })

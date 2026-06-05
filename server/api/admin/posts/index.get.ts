@@ -12,7 +12,6 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await client
     .from('posts')
     .select('id, title, slug, status, published_at, created_at')
-    .eq('author_id', user.id)
     .order('created_at', { ascending: false })
 
   if (error) {
