@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: 'Não autorizado' })
   }
 
-  const client = await useServerSupabase(event)
+  const client = useServerAdmin(event)
 
   const { data, error } = await client
     .from('posts')
