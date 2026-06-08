@@ -31,8 +31,27 @@
         class="serif" style="width:100%;border:none;outline:none;background:none;font-size:30px;font-weight:500;letter-spacing:-0.02em;color:var(--text);margin-bottom:8px;" />
       <input v-model="form.excerpt" placeholder="Escreva um resumo curto que aparece na home…"
         style="width:100%;border:none;outline:none;background:none;font-size:15px;color:var(--text-2);font-family:var(--font-ui);margin-bottom:4px;" />
-      <div style="font-size:12px;color:var(--text-3);font-family:var(--font-mono);">
-        {{ form.excerpt.length }}/160 caracteres
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:8px;">
+        <div style="font-size:12px;color:var(--text-3);font-family:var(--font-mono);">
+          {{ form.excerpt.length }}/160 caracteres
+        </div>
+        <!-- Toggle show_cover -->
+        <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none;">
+          <span style="font-size:12.5px;color:var(--text-2);font-family:var(--font-mono);">Exibir imagem de capa</span>
+          <span @click="form.show_cover = !form.show_cover"
+            :style="{
+              display:'inline-flex', width:'36px', height:'20px', borderRadius:'99px', padding:'2px',
+              background: form.show_cover ? 'var(--accent)' : 'var(--border-2)',
+              transition:'background .18s var(--ease)', cursor:'pointer', alignItems:'center',
+            }">
+            <span :style="{
+              width:'16px', height:'16px', borderRadius:'50%', background:'#fff',
+              transition:'transform .18s var(--ease)',
+              transform: form.show_cover ? 'translateX(16px)' : 'translateX(0)',
+              boxShadow:'0 1px 3px rgba(0,0,0,.2)',
+            }" />
+          </span>
+        </label>
       </div>
     </div>
 
@@ -54,6 +73,15 @@
         </div>
         <textarea ref="taRef" v-model="form.content" spellcheck="false"
           style="flex:1;border:none;outline:none;resize:none;padding:24px 26px;background:var(--surface);color:var(--text);font-family:var(--font-mono);font-size:14px;line-height:1.75;min-height:0;" />
+
+        <!-- Nota interna -->
+        <div style="border-top:1px solid var(--border);padding:14px 18px;background:var(--surface);">
+          <label style="display:block;font-size:11.5px;font-weight:600;font-family:var(--font-mono);color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">
+            Nota interna (não aparece no site)
+          </label>
+          <textarea v-model="form.note" rows="2" placeholder="Anotações, ideias, contexto…"
+            style="width:100%;border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;background:var(--bg-tint);color:var(--text-2);font-family:var(--font-mono);font-size:12.5px;line-height:1.6;resize:none;outline:none;" />
+        </div>
       </div>
 
       <!-- Preview -->
@@ -66,7 +94,7 @@
         </div>
         <div style="flex:1;overflow-y:auto;padding:32px 40px;min-height:0;">
           <article style="max-width:620px;margin:0 auto;">
-            <h1 v-if="form.title" class="serif" style="font-size:36px;font-weight:500;letter-spacing:-0.025em;line-height:1.1;margin:0 0 14px;">{{ form.title }}</h1>
+            <h1 v-if="form.title" class="serif" style="font-size:36px;font-weight:500;letter-spacing:-0.025em;line-height:1.1;margin:0 0 14px;color:var(--text);">{{ form.title }}</h1>
             <p v-if="form.excerpt" style="font-size:17px;color:var(--text-2);line-height:1.55;margin:0 0 24px;">{{ form.excerpt }}</p>
             <div class="prose" style="font-size:17px;" v-html="renderMarkdown(form.content)" />
           </article>
@@ -81,6 +109,8 @@ interface PostData {
   title: string
   excerpt: string
   content: string
+  note: string
+  show_cover: boolean
   publish?: boolean
 }
 
@@ -100,12 +130,14 @@ const saveState = ref<'saved' | 'saving'>('saved')
 let saveTimer: ReturnType<typeof setTimeout>
 
 const form = reactive<PostData>({
-  title: props.initialData?.title ?? '',
-  excerpt: props.initialData?.excerpt ?? '',
-  content: props.initialData?.content ?? '# Comece a escrever\n\nUm parágrafo de abertura.\n\n## Um subtítulo\n\n- item de lista\n',
+  title:      props.initialData?.title      ?? '',
+  excerpt:    props.initialData?.excerpt    ?? '',
+  content:    props.initialData?.content    ?? '# Comece a escrever\n\nUm parágrafo de abertura.\n\n## Um subtítulo\n\n- item de lista\n',
+  note:       props.initialData?.note       ?? '',
+  show_cover: props.initialData?.show_cover ?? true,
 })
 
-watch(() => [form.title, form.excerpt, form.content], () => {
+watch(() => [form.title, form.excerpt, form.content, form.note, form.show_cover], () => {
   saveState.value = 'saving'
   clearTimeout(saveTimer)
   saveTimer = setTimeout(() => { saveState.value = 'saved' }, 900)
@@ -120,13 +152,13 @@ const titleError = computed(() => {
 })
 
 const tools: [string, string, string, string, string][] = [
-  ['bold', 'Negrito', '**', '**', 'texto'],
-  ['italic', 'Itálico', '*', '*', 'texto'],
-  ['heading', 'Título', '## ', '', 'Subtítulo'],
-  ['link', 'Link', '[', '](url)', 'texto'],
-  ['code', 'Código inline', '`', '`', 'code'],
-  ['list', 'Lista', '- ', '', 'item'],
-  ['quote', 'Citação', '> ', '', 'citação'],
+  ['bold',    'Negrito',       '**',   '**',     'texto'],
+  ['italic',  'Itálico',       '*',    '*',      'texto'],
+  ['heading', 'Título',        '## ',  '',       'Subtítulo'],
+  ['link',    'Link',          '[',    '](url)', 'texto'],
+  ['code',    'Código inline', '`',    '`',      'code'],
+  ['list',    'Lista',         '- ',   '',       'item'],
+  ['quote',   'Citação',       '> ',   '',       'citação'],
 ]
 
 function insert(pre: string, post: string, placeholder: string) {

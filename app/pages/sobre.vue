@@ -4,8 +4,12 @@
 
     <template v-else-if="profile">
       <div class="rise" style="display:flex;align-items:center;gap:24px;margin-bottom:40px;flex-wrap:wrap;">
-        <div style="width:92px;height:92px;border-radius:50%;background:var(--accent-weak);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--border-2);display:grid;place-items:center;color:var(--accent);font-family:var(--font-display);font-weight:600;font-size:36px;flex:none;">
-          {{ profile.name.charAt(0).toUpperCase() }}
+        <div style="width:92px;height:92px;border-radius:50%;overflow:hidden;background:var(--accent-weak);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--border-2);display:grid;place-items:center;flex:none;">
+          <img v-if="profile.avatar_url" :src="profile.avatar_url" :alt="profile.name"
+            style="width:100%;height:100%;object-fit:cover;" />
+          <span v-else style="color:var(--accent);font-family:var(--font-display);font-weight:600;font-size:36px;">
+            {{ (profile.name || 'G').charAt(0).toUpperCase() }}
+          </span>
         </div>
         <div>
           <div class="eyebrow" style="margin-bottom:10px;">Sobre</div>
@@ -24,7 +28,6 @@
         <p>{{ profile.bio }}</p>
       </div>
 
-      <!-- Stack -->
       <div style="margin:44px 0 0;">
         <div class="eyebrow" style="margin-bottom:16px;">Ferramentas do dia a dia</div>
         <div style="display:flex;flex-wrap:wrap;gap:9px;">
@@ -32,7 +35,6 @@
         </div>
       </div>
 
-      <!-- Social links -->
       <div style="margin:44px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <a v-for="link in social" :key="link.icon" :href="link.href" target="_blank" rel="noreferrer"
           class="card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;transition:all .18s var(--ease);"
@@ -66,9 +68,9 @@ useSeoMeta({
 
 const stack = ['Vue 3', 'Nuxt 4', 'TypeScript', 'Supabase', 'PostgreSQL', 'Tailwind CSS', 'Node.js']
 const social = [
-  { icon: 'github', label: 'GitHub', value: '@fgregoryb', href: 'https://github.com/fgregoryb' },
-  { icon: 'linkedin', label: 'LinkedIn', value: 'Gregory Rodrigues', href: 'https://linkedin.com/in/fgregoryb' },
-  { icon: 'twitter', label: 'X / Twitter', value: '@fgregoryb', href: 'https://x.com/fgregoryb' },
-  { icon: 'mail', label: 'E-mail', value: 'ola@falador.dev', href: 'mailto:ola@falador.dev' },
+  { icon: 'github',   label: 'GitHub',      value: '@fgregoryb',       href: 'https://github.com/fgregoryb' },
+  { icon: 'linkedin', label: 'LinkedIn',    value: 'Gregory Rodrigues', href: 'https://linkedin.com/in/fgregoryb' },
+  { icon: 'twitter',  label: 'X / Twitter', value: '@fgregoryb',       href: 'https://x.com/fgregoryb' },
+  { icon: 'mail',     label: 'E-mail',      value: 'fgregoryb@gmail.com', href: 'mailto:fgregoryb@gmail.com' },
 ]
 </script>

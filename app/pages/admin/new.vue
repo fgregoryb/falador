@@ -10,16 +10,22 @@
 definePageMeta({ layout: 'admin', middleware: 'auth' })
 
 const loading = ref(false)
-const router = useRouter()
+const router  = useRouter()
 
-async function createPost(data: { title: string; excerpt: string; content: string; publish?: boolean }) {
+async function createPost(data: { title: string; excerpt: string; content: string; note: string; show_cover: boolean; publish?: boolean }) {
   if (!data.title.trim()) return
   loading.value = true
 
   try {
     await $fetch('/api/admin/posts', {
       method: 'POST',
-      body: { title: data.title, excerpt: data.excerpt, content: data.content },
+      body: {
+        title:      data.title,
+        excerpt:    data.excerpt,
+        content:    data.content,
+        note:       data.note,
+        show_cover: data.show_cover,
+      },
     })
     await router.push('/admin')
   } catch {

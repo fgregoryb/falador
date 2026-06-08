@@ -9,7 +9,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   app: {
     head: {
-      titleTemplate: '%s · Falador',
+      titleTemplate: '%s · Verbose',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { charset: 'utf-8' },

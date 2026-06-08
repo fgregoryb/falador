@@ -1,4 +1,4 @@
-import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseUser } from '#supabase/server'
 
 function slugify(title: string): string {
   return title
@@ -19,23 +19,26 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event)
-  const { title, content, excerpt } = body
+  const { title, content, excerpt, note, show_cover } = body
 
   if (!title?.trim()) {
     throw createError({ statusCode: 400, message: 'Título é obrigatório' })
   }
 
-  const slug = slugify(title) + '-' + Date.now().toString(36)
-  const client = serverSupabaseServiceRole(event)
+  const slug   = slugify(title) + '-' + Date.now().toString(36)
+  const client = useServerAdmin(event)
 
-  const { data, error } = await (client.from('posts' as any) as any)
+  const { data, error } = await client
+    .from('posts')
     .insert({
-      title: title.trim(),
+      title:      title.trim(),
       slug,
-      content: content ?? '',
-      excerpt: excerpt?.trim() ?? null,
-      status: 'draft',
-      author_id: user.id,
+      content:    content    ?? '',
+      excerpt:    excerpt?.trim() ?? null,
+      note:       note       ?? null,
+      show_cover: show_cover ?? true,
+      status:     'draft',
+      author_id:  user.id,
     })
     .select('id')
     .single()

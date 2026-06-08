@@ -28,12 +28,18 @@
       </nav>
 
       <div style="margin-top:auto;">
-        <button @click="navigateTo('/')"
-          style="width:100%;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:none;border:none;color:var(--text-2);font-size:13.5px;font-family:var(--font-ui);margin-bottom:8px;"
-          @mouseenter="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.color='var(--accent)'"
-          @mouseleave="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.color='var(--text-2)'">
-          <FIcon name="arrowUpRight" :size="16" /> Ver site público
-        </button>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <button @click="navigateTo('/')"
+            style="flex:1;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:none;border:none;color:var(--text-2);font-size:13.5px;font-family:var(--font-ui);"
+            @mouseenter="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.color='var(--accent)'"
+            @mouseleave="(e: MouseEvent) => (e.currentTarget as HTMLElement).style.color='var(--text-2)'">
+            <FIcon name="arrowUpRight" :size="16" /> Ver site público
+          </button>
+          <button class="icon-btn" @click="toggleTheme" :title="theme === 'dark' ? 'Modo claro' : 'Modo escuro'"
+            style="border:1px solid var(--border);">
+            <FIcon :name="theme === 'dark' ? 'sun' : 'moon'" :size="16" />
+          </button>
+        </div>
         <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;align-items:center;gap:11px;">
           <div style="width:36px;height:36px;border-radius:50%;background:var(--accent-weak);display:grid;place-items:center;color:var(--accent);font-family:var(--font-display);font-weight:600;font-size:15px;flex:none;">G</div>
           <div style="min-width:0;flex:1;">
@@ -60,14 +66,15 @@ const supabase = useSupabaseClient()
 const { theme, toggleTheme } = useTheme()
 
 const navItems = [
-  { route: 'admin', path: '/admin', icon: 'file', label: 'Painel' },
-  { route: 'new', path: '/admin/new', icon: 'pencil', label: 'Novo post' },
-  { route: 'settings', path: '/admin', icon: 'settings', label: 'Configurações' },
+  { route: 'admin',    path: '/admin',               icon: 'file',     label: 'Painel' },
+  { route: 'new',      path: '/admin/new',            icon: 'pencil',   label: 'Novo post' },
+  { route: 'settings', path: '/admin/configuracoes',  icon: 'settings', label: 'Configurações' },
 ]
 
 function isNavActive(r: string) {
-  if (r === 'admin') return route.path === '/admin'
-  if (r === 'new') return route.path.startsWith('/admin/new') || route.path.startsWith('/admin/edit')
+  if (r === 'admin')    return route.path === '/admin'
+  if (r === 'new')      return route.path.startsWith('/admin/new') || route.path.startsWith('/admin/edit')
+  if (r === 'settings') return route.path.startsWith('/admin/configuracoes')
   return false
 }
 

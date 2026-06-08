@@ -12,7 +12,7 @@
   --font-ui: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
-  --accent: #ff5722;
+  --accent: #2563eb;
   --accent-press: color-mix(in srgb, var(--accent) 86%, #000);
   --accent-weak: color-mix(in srgb, var(--accent) 10%, transparent);
   --accent-line: color-mix(in srgb, var(--accent) 30%, transparent);
@@ -45,6 +45,7 @@
 }
 
 [data-theme="dark"] {
+  --accent: #3b82f6;
   --accent-press: color-mix(in srgb, var(--accent) 80%, #fff);
   --accent-weak: color-mix(in srgb, var(--accent) 15%, transparent);
   --accent-line: color-mix(in srgb, var(--accent) 34%, transparent);

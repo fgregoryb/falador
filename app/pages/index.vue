@@ -40,7 +40,7 @@
                 <span class="badge badge-new badge-dot">novo</span>
                 <span class="badge">★ em destaque</span>
               </div>
-              <h2 class="serif" style="font-size:34px;font-weight:500;line-height:1.12;letter-spacing:-0.02em;margin:0 0 16px;">
+              <h2 class="serif" style="font-size:34px;font-weight:500;line-height:1.12;letter-spacing:-0.02em;margin:0 0 16px;color:var(--text);">
                 {{ posts[0].title }}
               </h2>
               <p style="color:var(--text-2);font-size:16px;line-height:1.65;margin:0;">{{ posts[0].excerpt }}</p>
@@ -62,7 +62,7 @@
         </div>
         <div>
           <NuxtLink v-for="post in posts.slice(1)" :key="post.slug" :to="`/posts/${post.slug}`"
-            style="display:grid;grid-template-columns:120px 1fr auto;gap:28px;align-items:start;border-bottom:1px solid var(--border);padding:26px 0;transition:padding .2s var(--ease);"
+            style="display:grid;grid-template-columns:120px 1fr auto;gap:28px;align-items:start;border-bottom:1px solid var(--border);padding:26px 0;transition:padding .2s var(--ease);color:var(--text);"
             @mouseenter="(e: MouseEvent) => { (e.currentTarget as HTMLElement).style.paddingLeft='14px'; }"
             @mouseleave="(e: MouseEvent) => { (e.currentTarget as HTMLElement).style.paddingLeft='0'; }">
             <div style="padding-top:4px;">

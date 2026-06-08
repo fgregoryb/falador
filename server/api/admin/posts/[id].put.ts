@@ -7,22 +7,24 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: 'Não autorizado' })
   }
 
-  const id = getRouterParam(event, 'id')
+  const id   = getRouterParam(event, 'id')
   const body = await readBody(event)
-  const { title, content, excerpt, status } = body
+  const { title, content, excerpt, status, note, show_cover } = body
 
   if (title !== undefined && !title?.trim()) {
     throw createError({ statusCode: 400, message: 'Título é obrigatório' })
   }
 
-  const client = useServerAdmin(event)
-
+  const client  = useServerAdmin(event)
   const updates: Record<string, unknown> = {}
-  if (title !== undefined) updates.title = title.trim()
-  if (content !== undefined) updates.content = content
-  if (excerpt !== undefined) updates.excerpt = excerpt?.trim() ?? null
-  if (status !== undefined) {
-    updates.status = status
+
+  if (title      !== undefined) updates.title      = title.trim()
+  if (content    !== undefined) updates.content    = content
+  if (excerpt    !== undefined) updates.excerpt    = excerpt?.trim() ?? null
+  if (note       !== undefined) updates.note       = note ?? null
+  if (show_cover !== undefined) updates.show_cover = show_cover
+  if (status     !== undefined) {
+    updates.status       = status
     updates.published_at = status === 'published' ? new Date().toISOString() : null
   }
 

@@ -32,7 +32,8 @@
           </div>
         </div>
 
-        <img :src="coverImage(post.slug, 1200, 600)" :alt="post.title"
+        <img v-if="(post as any).show_cover !== false"
+          :src="coverImage(post.slug, 1200, 600)" :alt="post.title"
           class="fade"
           style="width:100%;height:300px;object-fit:cover;border-radius:var(--radius);display:block;margin:34px 0 12px;"
           loading="lazy" />

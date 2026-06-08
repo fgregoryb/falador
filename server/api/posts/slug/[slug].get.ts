@@ -5,11 +5,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Slug é obrigatório' })
   }
 
-  const client = await useServerSupabase(event)
+  const client = useServerAdmin(event)
 
   const { data, error } = await client
     .from('posts')
-    .select('id, title, slug, content, excerpt, published_at')
+    .select('id, title, slug, content, excerpt, published_at, show_cover')
     .eq('slug', slug)
     .eq('status', 'published')
     .single()
