@@ -4,6 +4,7 @@ const DEFAULTS = {
   site_name:        'Verbose',
   site_description: '',
   contact_email:    '',
+  location:         '',
   timezone:         'America/Sao_Paulo',
   language:         'pt-BR',
   logo_url:         '',

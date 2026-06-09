@@ -16,10 +16,10 @@
           <h1 class="serif" style="font-size:clamp(32px,4.5vw,44px);font-weight:500;letter-spacing:-0.025em;line-height:1.05;margin:0;">
             {{ profile.name }}
           </h1>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:12px;color:var(--text-2);font-size:15px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px;color:var(--text-2);font-size:15px;flex-wrap:wrap;">
             <span>Desenvolvedor Full-Stack</span>
-            <span style="color:var(--text-3);">·</span>
-            <span style="font-family:var(--font-mono);font-size:13px;">São Paulo, Brasil</span>
+            <span v-if="locationLabel" style="color:var(--text-3);">·</span>
+            <span v-if="locationLabel" style="font-family:var(--font-mono);font-size:13px;">{{ locationLabel }}</span>
           </div>
         </div>
       </div>
@@ -35,8 +35,8 @@
         </div>
       </div>
 
-      <div style="margin:44px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <a v-for="link in social" :key="link.icon" :href="link.href" target="_blank" rel="noreferrer"
+      <div v-if="socialLinks.length" style="margin:44px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <a v-for="link in socialLinks" :key="link.icon" :href="link.href" target="_blank" rel="noreferrer"
           class="card" style="display:flex;align-items:center;gap:14px;padding:18px 20px;transition:all .18s var(--ease);"
           @mouseenter="(e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor='var(--accent-line)'; (e.currentTarget as HTMLElement).style.transform='translateY(-2px)'; }"
           @mouseleave="(e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor='var(--border)'; (e.currentTarget as HTMLElement).style.transform='none'; }">
@@ -45,7 +45,7 @@
           </span>
           <div style="min-width:0;">
             <div style="font-size:14.5px;font-weight:600;">{{ link.label }}</div>
-            <div style="font-size:13px;color:var(--text-3);font-family:var(--font-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ link.value }}</div>
+            <div style="font-size:13px;color:var(--text-3);font-family:var(--font-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ link.display }}</div>
           </div>
           <FIcon name="arrowUpRight" :size="16" style="margin-left:auto;color:var(--text-3);" />
         </a>
@@ -59,18 +59,47 @@
 </template>
 
 <script setup lang="ts">
-const { data: profile, pending } = await useFetch('/api/profile')
+const [{ data: profile, pending }, { data: siteSettings }] = await Promise.all([
+  useFetch('/api/profile'),
+  useFetch('/api/settings'),
+])
 
 useSeoMeta({
   title: () => profile.value ? `Sobre — ${profile.value.name}` : 'Sobre',
   description: () => profile.value?.bio ?? '',
 })
 
+// Location from the dedicated field in settings (not derived from timezone)
+const locationLabel = computed(() => (siteSettings.value as any)?.location ?? '')
+
 const stack = ['Vue 3', 'Nuxt 4', 'TypeScript', 'Supabase', 'PostgreSQL', 'Tailwind CSS', 'Node.js']
-const social = [
-  { icon: 'github',   label: 'GitHub',      value: '@fgregoryb',       href: 'https://github.com/fgregoryb' },
-  { icon: 'linkedin', label: 'LinkedIn',    value: 'Gregory Rodrigues', href: 'https://linkedin.com/in/fgregoryb' },
-  { icon: 'twitter',  label: 'X / Twitter', value: '@fgregoryb',       href: 'https://x.com/fgregoryb' },
-  { icon: 'mail',     label: 'E-mail',      value: 'fgregoryb@gmail.com', href: 'mailto:fgregoryb@gmail.com' },
-]
+
+// Social links from settings — only show filled ones
+const socialLinks = computed(() => {
+  const s = siteSettings.value as any
+  if (!s) return []
+
+  const map = [
+    { key: 'github_url',    icon: 'github',    label: 'GitHub' },
+    { key: 'linkedin_url',  icon: 'linkedin',  label: 'LinkedIn' },
+    { key: 'twitter_url',   icon: 'twitter',   label: 'X / Twitter' },
+    { key: 'instagram_url', icon: 'instagram', label: 'Instagram' },
+    { key: 'facebook_url',  icon: 'facebook',  label: 'Facebook' },
+  ]
+
+  return map
+    .filter(m => s[m.key])
+    .map(m => ({
+      icon:    m.icon,
+      label:   m.label,
+      href:    s[m.key] as string,
+      display: (s[m.key] as string)
+        .replace('https://github.com/', '@')
+        .replace('https://linkedin.com/in/', '')
+        .replace('https://x.com/', '@')
+        .replace('https://twitter.com/', '@')
+        .replace('https://instagram.com/', '@')
+        .replace('https://facebook.com/', ''),
+    }))
+})
 </script>

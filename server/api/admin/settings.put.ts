@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const {
     site_name, site_description, contact_email,
-    timezone, language, logo_url,
+    location, timezone, language, logo_url,
     github_url, linkedin_url, facebook_url, instagram_url, twitter_url,
   } = await readBody(event)
 
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     .from('settings')
     .update({
       site_name: site_name.trim(), site_description, contact_email,
-      timezone, language, logo_url,
+      location, timezone, language, logo_url,
       github_url, linkedin_url, facebook_url, instagram_url, twitter_url,
       updated_at: new Date().toISOString(),
     })

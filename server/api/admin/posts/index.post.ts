@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event)
-  const { title, content, excerpt, note, show_cover } = body
+  const { title, content, excerpt, note, show_cover, cover_image_url } = body
 
   if (!title?.trim()) {
     throw createError({ statusCode: 400, message: 'Título é obrigatório' })
@@ -35,8 +35,9 @@ export default defineEventHandler(async (event) => {
       slug,
       content:    content    ?? '',
       excerpt:    excerpt?.trim() ?? null,
-      note:       note       ?? null,
-      show_cover: show_cover ?? true,
+      note:            note            ?? null,
+      show_cover:      show_cover      ?? true,
+      cover_image_url: cover_image_url ?? null,
       status:     'draft',
       author_id:  user.id,
     })

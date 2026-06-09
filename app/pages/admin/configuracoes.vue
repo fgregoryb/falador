@@ -111,7 +111,17 @@
         <!-- ══ LOCALIZAÇÃO ══ -->
         <div class="eyebrow" style="margin-bottom:12px;">Localização</div>
         <section class="card" style="padding:24px;margin-bottom:28px;">
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
+          <div style="display:grid;gap:16px;">
+            <!-- Campo de localização livre — aparece na página Sobre -->
+            <div>
+              <label class="field-label">
+                Localização
+                <span style="color:var(--text-3);font-weight:400;">— aparece na página Sobre (ex: Utah, EUA)</span>
+              </label>
+              <input v-model="settings.location" class="field" placeholder="ex: São Paulo, Brasil" />
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
             <div>
               <label class="field-label">Idioma</label>
               <select v-model="settings.language" class="field" style="cursor:pointer;width:100%;">
@@ -177,6 +187,7 @@
                 </optgroup>
               </select>
             </div>
+            </div> <!-- fecha grid idioma+timezone -->
           </div>
         </section>
 
@@ -276,7 +287,7 @@ const socialNetworks = [
 const profile  = reactive({ name: '', bio: '', avatar_url: '' })
 const settings = reactive({
   site_name: 'Verbose', site_description: '', contact_email: '',
-  timezone: 'America/Sao_Paulo', language: 'pt-BR',
+  location: '', timezone: 'America/Sao_Paulo', language: 'pt-BR',
   github_url: '', linkedin_url: '', instagram_url: '', facebook_url: '', twitter_url: '',
 })
 

@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 
   const id   = getRouterParam(event, 'id')
   const body = await readBody(event)
-  const { title, content, excerpt, status, note, show_cover } = body
+  const { title, content, excerpt, status, note, show_cover, cover_image_url } = body
 
   if (title !== undefined && !title?.trim()) {
     throw createError({ statusCode: 400, message: 'Título é obrigatório' })
@@ -21,8 +21,9 @@ export default defineEventHandler(async (event) => {
   if (title      !== undefined) updates.title      = title.trim()
   if (content    !== undefined) updates.content    = content
   if (excerpt    !== undefined) updates.excerpt    = excerpt?.trim() ?? null
-  if (note       !== undefined) updates.note       = note ?? null
-  if (show_cover !== undefined) updates.show_cover = show_cover
+  if (note            !== undefined) updates.note            = note ?? null
+  if (show_cover      !== undefined) updates.show_cover      = show_cover
+  if (cover_image_url !== undefined) updates.cover_image_url = cover_image_url ?? null
   if (status     !== undefined) {
     updates.status       = status
     updates.published_at = status === 'published' ? new Date().toISOString() : null

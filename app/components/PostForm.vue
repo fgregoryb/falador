@@ -31,28 +31,61 @@
         class="serif" style="width:100%;border:none;outline:none;background:none;font-size:30px;font-weight:500;letter-spacing:-0.02em;color:var(--text);margin-bottom:8px;" />
       <input v-model="form.excerpt" placeholder="Escreva um resumo curto que aparece na home…"
         style="width:100%;border:none;outline:none;background:none;font-size:15px;color:var(--text-2);font-family:var(--font-ui);margin-bottom:4px;" />
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:8px;">
+
+      <!-- Row: contador + imagem de capa + toggle -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:10px;">
         <div style="font-size:12px;color:var(--text-3);font-family:var(--font-mono);">
           {{ form.excerpt.length }}/160 caracteres
         </div>
-        <!-- Toggle show_cover -->
-        <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none;">
-          <span style="font-size:12.5px;color:var(--text-2);font-family:var(--font-mono);">Exibir imagem de capa</span>
-          <span @click="form.show_cover = !form.show_cover"
-            :style="{
-              display:'inline-flex', width:'36px', height:'20px', borderRadius:'99px', padding:'2px',
-              background: form.show_cover ? 'var(--accent)' : 'var(--border-2)',
-              transition:'background .18s var(--ease)', cursor:'pointer', alignItems:'center',
-            }">
-            <span :style="{
-              width:'16px', height:'16px', borderRadius:'50%', background:'#fff',
-              transition:'transform .18s var(--ease)',
-              transform: form.show_cover ? 'translateX(16px)' : 'translateX(0)',
-              boxShadow:'0 1px 3px rgba(0,0,0,.2)',
-            }" />
-          </span>
-        </label>
+
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+
+          <!-- Upload de imagem de capa -->
+          <div style="display:flex;align-items:center;gap:9px;">
+            <input ref="coverInput" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" @change="onCoverSelected" />
+
+            <!-- Thumbnail preview -->
+            <div v-if="form.cover_image_url"
+              style="position:relative;width:40px;height:28px;border-radius:5px;overflow:hidden;border:1px solid var(--border);flex:none;cursor:pointer;"
+              @click="coverInput?.click()">
+              <img :src="form.cover_image_url" style="width:100%;height:100%;object-fit:cover;" />
+              <button @click.stop="form.cover_image_url = ''"
+                style="position:absolute;top:-1px;right:-1px;width:16px;height:16px;border-radius:50%;background:#e5484d;border:none;display:grid;place-items:center;cursor:pointer;">
+                <FIcon name="x" :size="9" style="color:#fff;" />
+              </button>
+            </div>
+
+            <button class="btn btn-ghost btn-sm" :disabled="uploadingCover" @click="coverInput?.click()"
+              style="font-size:12px;padding:5px 10px;">
+              <FIcon :name="uploadingCover ? 'clock' : 'arrowUpRight'" :size="13" />
+              {{ uploadingCover ? 'Enviando…' : form.cover_image_url ? 'Trocar capa' : 'Adicionar capa' }}
+            </button>
+          </div>
+
+          <!-- Toggle show_cover -->
+          <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none;">
+            <span style="font-size:12.5px;color:var(--text-2);font-family:var(--font-mono);">Exibir imagem</span>
+            <span @click="form.show_cover = !form.show_cover"
+              :style="{
+                display:'inline-flex', width:'36px', height:'20px', borderRadius:'99px', padding:'2px',
+                background: form.show_cover ? 'var(--accent)' : 'var(--border-2)',
+                transition:'background .18s var(--ease)', cursor:'pointer', alignItems:'center',
+              }">
+              <span :style="{
+                width:'16px', height:'16px', borderRadius:'50%', background:'#fff',
+                transition:'transform .18s var(--ease)',
+                transform: form.show_cover ? 'translateX(16px)' : 'translateX(0)',
+                boxShadow:'0 1px 3px rgba(0,0,0,.2)',
+              }" />
+            </span>
+          </label>
+        </div>
       </div>
+
+      <!-- Erro de upload -->
+      <p v-if="uploadError" style="color:#e5484d;font-size:12px;margin:8px 0 0;font-family:var(--font-mono);">
+        {{ uploadError }}
+      </p>
     </div>
 
     <!-- Split pane -->
@@ -96,6 +129,16 @@
           <article style="max-width:620px;margin:0 auto;">
             <h1 v-if="form.title" class="serif" style="font-size:36px;font-weight:500;letter-spacing:-0.025em;line-height:1.1;margin:0 0 14px;color:var(--text);">{{ form.title }}</h1>
             <p v-if="form.excerpt" style="font-size:17px;color:var(--text-2);line-height:1.55;margin:0 0 24px;">{{ form.excerpt }}</p>
+
+            <!-- Cover image preview -->
+            <div v-if="form.show_cover" style="margin-bottom:24px;">
+              <img v-if="form.cover_image_url" :src="form.cover_image_url"
+                style="width:100%;height:200px;object-fit:cover;border-radius:var(--radius-sm);display:block;" />
+              <div v-else style="width:100%;height:200px;border-radius:var(--radius-sm);background:var(--surface-2);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;">
+                <span style="font-size:12px;color:var(--text-3);font-family:var(--font-mono);">imagem padrão (picsum)</span>
+              </div>
+            </div>
+
             <div class="prose" style="font-size:17px;" v-html="renderMarkdown(form.content)" />
           </article>
         </div>
@@ -106,12 +149,13 @@
 
 <script setup lang="ts">
 interface PostData {
-  title: string
-  excerpt: string
-  content: string
-  note: string
-  show_cover: boolean
-  publish?: boolean
+  title:           string
+  excerpt:         string
+  content:         string
+  note:            string
+  show_cover:      boolean
+  cover_image_url: string
+  publish?:        boolean
 }
 
 const props = withDefaults(defineProps<{
@@ -125,19 +169,23 @@ const props = withDefaults(defineProps<{
 
 defineEmits<{ submit: [data: PostData] }>()
 
-const taRef = ref<HTMLTextAreaElement | null>(null)
-const saveState = ref<'saved' | 'saving'>('saved')
+const taRef       = ref<HTMLTextAreaElement | null>(null)
+const coverInput  = ref<HTMLInputElement | null>(null)
+const saveState   = ref<'saved' | 'saving'>('saved')
+const uploadingCover = ref(false)
+const uploadError    = ref('')
 let saveTimer: ReturnType<typeof setTimeout>
 
 const form = reactive<PostData>({
-  title:      props.initialData?.title      ?? '',
-  excerpt:    props.initialData?.excerpt    ?? '',
-  content:    props.initialData?.content    ?? '# Comece a escrever\n\nUm parágrafo de abertura.\n\n## Um subtítulo\n\n- item de lista\n',
-  note:       props.initialData?.note       ?? '',
-  show_cover: props.initialData?.show_cover ?? true,
+  title:           props.initialData?.title           ?? '',
+  excerpt:         props.initialData?.excerpt         ?? '',
+  content:         props.initialData?.content         ?? '# Comece a escrever\n\nUm parágrafo de abertura.\n\n## Um subtítulo\n\n- item de lista\n',
+  note:            props.initialData?.note            ?? '',
+  show_cover:      props.initialData?.show_cover      ?? true,
+  cover_image_url: props.initialData?.cover_image_url ?? '',
 })
 
-watch(() => [form.title, form.excerpt, form.content, form.note, form.show_cover], () => {
+watch(() => [form.title, form.excerpt, form.content, form.note, form.show_cover, form.cover_image_url], () => {
   saveState.value = 'saving'
   clearTimeout(saveTimer)
   saveTimer = setTimeout(() => { saveState.value = 'saved' }, 900)
@@ -150,6 +198,30 @@ const titleError = computed(() => {
   if (form.title.length > 100) return 'Máximo 100 caracteres.'
   return ''
 })
+
+// Cover image upload
+async function onCoverSelected(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  if (file.size > 2 * 1024 * 1024) { uploadError.value = 'Arquivo muito grande. Máximo 2 MB.'; return }
+
+  uploadingCover.value = true
+  uploadError.value    = ''
+
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('bucket', 'avatars')
+
+  try {
+    const res = await $fetch<{ url: string }>('/api/admin/upload', { method: 'POST', body: fd })
+    form.cover_image_url = res.url
+  } catch (err: any) {
+    uploadError.value = err?.data?.message ?? 'Erro no upload.'
+  } finally {
+    uploadingCover.value = false
+    if (coverInput.value) coverInput.value.value = ''
+  }
+}
 
 const tools: [string, string, string, string, string][] = [
   ['bold',    'Negrito',       '**',   '**',     'texto'],

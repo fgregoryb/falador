@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await client
     .from('posts')
-    .select('id, title, slug, content, excerpt, status, published_at, note, show_cover')
+    .select('id, title, slug, content, excerpt, status, published_at, note, show_cover, cover_image_url')
     .eq('id', id)
     .single()
 
